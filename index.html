@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tip &amp; Discount Calculator</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1d21;--mu:#6b7280;--ac:#2f6df6;--ln:#e3e6ea;--ok:#0f9d58;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111316;--card:#1c1f24;--tx:#eceef1;--mu:#98a0ab;--ac:#6c9bff;--ln:#2c3037;--ok:#4cc38a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111316;--card:#1c1f24;--tx:#eceef1;--mu:#98a0ab;--ac:#6c9bff;--ln:#2c3037;--ok:#4cc38a;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 -apple-system,"Noto Sans TC","Noto Sans JP","Noto Sans KR","PingFang TC",sans-serif;padding:16px}
+main{max-width:480px;margin:0 auto}
+h1{font-size:20px;margin:4px 0 12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;padding:12px 6px;border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:12px;font-size:15px}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:16px;margin-bottom:12px}
+label{display:block;font-size:14px;color:var(--mu);margin:10px 0 4px}
+.card>label:first-child,.row label{margin-top:0}
+input,select{width:100%;padding:12px;font-size:17px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--tx)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{flex:1;min-width:56px;padding:10px 6px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:10px;font-size:16px}
+.chips button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.row{display:flex;gap:10px;margin-top:10px}.row>div{flex:1}
+.res div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}
+.res .big{font-size:24px;font-weight:700;border-top:1px solid var(--ln);margin-top:6px;padding-top:10px}
+.save{color:var(--ok)}
+.hint{font-size:13px;color:var(--mu);margin-top:6px}
+.btn{width:100%;padding:10px;margin-top:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:10px;font-size:16px}
+a{color:var(--ac)}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1 data-i="title"></h1>
+<div class="card" style="padding:10px 16px">
+  <div class="row" style="margin-top:0">
+    <div><label data-i="langL"></label>
+      <select id="lang"><option value="0">中文</option><option value="1">English</option><option value="2">日本語</option><option value="3">한국어</option></select></div>
+    <div><label data-i="curL"></label><select id="cur"></select></div>
+  </div>
+</div>
+<div class="tabs">
+  <button id="t1" class="on"></button>
+  <button id="t2" data-i="tabShop"></button>
+  <button id="t3" data-i="tabFx"></button>
+</div>
+
+<section id="p1">
+  <div class="card">
+    <label data-i="bill"></label>
+    <input id="bill" type="number" inputmode="decimal" placeholder="0.00">
+    <div id="us">
+      <label data-i="stateL"></label>
+      <select id="st"></select>
+      <label data-i="stax"></label>
+      <input id="stax" type="number" inputmode="decimal" placeholder="0">
+      <div class="hint" data-i="taxNote"></div>
+      <label data-i="tipL"></label>
+      <div class="chips" id="tipChips"></div>
+      <input id="tipC" type="number" inputmode="decimal" data-p="tipC" style="margin-top:8px">
+      <label data-i="tipBase"></label>
+      <select id="tipBase"></select>
+      <label data-i="fees"></label>
+      <div class="row" style="margin-top:0">
+        <div><label data-i="svcP"></label><input id="svc" type="number" inputmode="decimal" placeholder="18"></div>
+        <div><label data-i="ccP"></label><input id="cc" type="number" inputmode="decimal" placeholder="3.5"></div>
+      </div>
+      <div class="row">
+        <div><label data-i="dlv"></label><input id="dlv" type="number" inputmode="decimal" placeholder="0.00"></div>
+        <div><label data-i="plat"></label><input id="plat" type="number" inputmode="decimal" placeholder="0.00"></div>
+      </div>
+      <div class="row">
+        <div><label data-i="oth"></label><input id="oth" type="number" inputmode="decimal" placeholder="0.00"></div>
+        <div><label data-i="cpn"></label><input id="cpn" type="number" inputmode="decimal" placeholder="0.00"></div>
+      </div>
+      <div class="hint" data-i="usHint"></div>
+    </div>
+    <div id="intl" class="hide">
+      <label data-i="itax"></label><input id="itax" type="number" inputmode="decimal" placeholder="0">
+      <label data-i="isvc"></label><input id="isvc" type="number" inputmode="decimal" placeholder="0">
+      <label data-i="iper"></label><input id="iper" type="number" inputmode="decimal" placeholder="0">
+      <label data-i="ioth"></label><input id="ioth" type="number" inputmode="decimal" placeholder="0">
+      <label data-i="cpn"></label><input id="icpn" type="number" inputmode="decimal" placeholder="0">
+      <div class="hint" id="ihint"></div>
+    </div>
+    <label data-i="people"></label>
+    <input id="ppl" type="number" inputmode="numeric" value="1" min="1">
+  </div>
+  <div class="card res">
+    <div><span data-i="rSub"></span><b id="rSub">$0.00</b></div>
+    <div id="rCpnR"><span data-i="rCpn"></span><b id="rCpn" class="save"></b></div>
+    <div id="rTaxR"><span data-i="rTax"></span><b id="rTax"></b></div>
+    <div id="rTipR"><span data-i="rTip"></span><b id="rTip"></b></div>
+    <div id="rSvcR"><span data-i="rSvc"></span><b id="rSvc"></b></div>
+    <div id="rFeeR"><span id="rFeeL"></span><b id="rFee"></b></div>
+    <div id="rCcR"><span data-i="rCc"></span><b id="rCc"></b></div>
+    <div class="big"><span data-i="rTot"></span><span id="rTot"></span></div>
+    <div><span data-i="rPer"></span><b id="rPer"></b></div>
+    <div class="hint" id="hc1"></div>
+    <div class="hint" id="rPct"></div>
+  </div>
+</section>
+
+<section id="p2" class="hide">
+  <div class="card">
+    <label data-i="price"></label>
+    <input id="price" type="number" inputmode="decimal" placeholder="0.00">
+    <div class="row">
+      <div><label data-i="qty"></label><input id="qty" type="number" inputmode="numeric" value="1" min="1"></div>
+      <div><label id="offL"></label><input id="off" type="number" inputmode="decimal"></div>
+    </div>
+    <div class="chips" id="offChips" style="margin-top:8px"></div>
+    <label data-i="dealL"></label>
+    <select id="deal"></select>
+    <div id="dp" class="row hide">
+      <div><label id="l1"></label><input id="x" type="number" inputmode="decimal"></div>
+      <div id="yw"><label data-i="pY"></label><input id="y" type="number" inputmode="decimal"></div>
+    </div>
+    <label data-i="taxPct"></label>
+    <input id="tax" type="number" inputmode="decimal" placeholder="6.625">
+    <div class="hint" id="taxHint"></div>
+    <div class="hint" data-i="order"></div>
+  </div>
+  <div class="card res">
+    <div><span data-i="oOrig"></span><b id="orig"></b></div>
+    <div><span data-i="oAfter"></span><b id="after"></b></div>
+    <div><span data-i="rTax"></span><b id="taxAmt"></b></div>
+    <div class="save"><span data-i="oSaved"></span><b id="saved"></b></div>
+    <div class="big"><span data-i="oTotal"></span><span id="total"></span></div>
+    <div class="hint" id="hc2"></div>
+    <div class="hint" id="eff"></div>
+  </div>
+</section>
+<section id="p3" class="hide">
+  <div class="card">
+    <label data-i="fxAmt"></label>
+    <input id="fxA" type="number" inputmode="decimal" placeholder="0">
+    <div class="row">
+      <div><label data-i="fxFrom"></label><select id="fxF"></select></div>
+      <div><label data-i="fxTo"></label><select id="fxT"></select></div>
+    </div>
+    <button class="btn" id="fxS">⇄</button>
+  </div>
+  <div class="card res">
+    <div class="big" style="border:0;margin:0;padding:0"><span id="fxR"></span></div>
+    <div class="hint" id="fxRate"></div>
+  </div>
+  <div class="card">
+    <label data-i="fxRatesT"></label>
+    <div class="hint" id="fxStat"></div>
+    <div id="fxRates"></div>
+    <button class="btn" id="fxRefresh" data-i="fxRefresh"></button>
+    <button class="btn" id="fxReset" data-i="fxReset"></button>
+    <label data-i="fxHome"></label>
+    <select id="fxH"></select>
+    <div class="hint" data-i="fxNote"></div>
+    <div class="hint"><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate API</a></div>
+  </div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const n=id=>parseFloat($(id).value)||0;
+// [中文, English, 日本語, 한국어]
+const T={
+tabFx:['💱 匯率','💱 FX rate','💱 為替','💱 환율'],
+fxAmt:['金額','Amount','金額','금액'],
+fxFrom:['從','From','換算元','환산 전'],
+fxTo:['換成','To','換算先','환산 후'],
+fxRatesT:['匯率（1 美金 = 多少當地幣，可自行修改）','Rates (local currency per 1 USD, editable)','為替レート（1米ドル＝現地通貨、編集可）','환율(1달러당 현지 통화, 수정 가능)'],
+fxNote:['匯率每日自動更新一次（市場中間價，不是銀行實際換匯價）。連線失敗時使用 2026/11/3 的參考匯率。實際換匯請以銀行、信用卡或換匯 App 的匯率為準，並留意手續費。','Rates update automatically once a day (mid-market, not your bank rate). If the connection fails, reference rates from Nov 3, 2026 are used. Check your bank, card or exchange app for actual rates and fees.','レートは1日1回自動更新されます（仲値であり、銀行の実際のレートではありません）。接続に失敗した場合は2026年11月3日の参考レートを使用します。実際のレートと手数料は銀行・カード・両替アプリで確認してください。','환율은 하루 한 번 자동 갱신됩니다(중간 환율이며 은행 실제 환율이 아닙니다). 연결에 실패하면 2026년 11월 3일 참고 환율을 사용합니다. 실제 환율과 수수료는 은행·카드·환전 앱에서 확인하세요.'],
+fxRefresh:['🔄 立即更新匯率','🔄 Update rates now','🔄 今すぐレートを更新','🔄 지금 환율 업데이트'],
+fxAuto:['已自動更新：{d}（來源 ExchangeRate-API，每日更新一次）','Auto-updated: {d} (ExchangeRate-API, daily)','自動更新済み：{d}（ExchangeRate-API、1日1回）','자동 업데이트됨: {d} (ExchangeRate-API, 하루 1회)'],
+fxLoading:['更新中…','Updating…','更新中…','업데이트 중…'],
+fxFail:['無法取得最新匯率，目前使用參考匯率（2026/11/3）。在 claude.ai 內開啟時受環境限制無法自動更新，部署到自己的網站即可。','Could not fetch live rates; using reference rates (Nov 3, 2026). Auto-update is blocked inside claude.ai; host the page on your own site.','最新レートを取得できず、参考レート（2026/11/3）を使用中です。claude.ai内では自動更新が制限されるため、ご自身のサイトに設置してください。','실시간 환율을 가져오지 못해 참고 환율(2026/11/3)을 사용 중입니다. claude.ai 안에서는 자동 업데이트가 제한되므로 본인 사이트에 배포하세요.'],
+fxRefMsg:['使用參考匯率（2026/11/3）。','Using reference rates (Nov 3, 2026).','参考レート（2026/11/3）を使用中です。','참고 환율(2026/11/3)을 사용 중입니다.'],
+fxManual:['已手動修改匯率；按「立即更新匯率」可改回自動匯率。','Rates edited manually; tap Update to go back to automatic rates.','レートを手動で変更しました。「今すぐ更新」で自動レートに戻ります。','환율을 직접 수정했습니다. 업데이트를 누르면 자동 환율로 돌아갑니다.'],
+fxReset:['還原參考匯率','Reset to reference','参考レートに戻す','참고 환율로 복원'],
+fxHome:['同時顯示約合（餐錢、購物結果）','Also show approx. in (meal and shopping results)','概算も表示（食事・ショッピングの結果）','환산 금액도 표시(식사·쇼핑 결과)'],
+fxNone:['不顯示','Off','表示しない','표시 안 함'],
+title:['小費 & 折扣計算機','Tip & Discount Calculator','チップ＆割引計算機','팁 & 할인 계산기'],
+langL:['語言','Language','言語','언어'],
+curL:['幣別／當地優惠','Currency / local deals','通貨／現地の割引','통화 / 현지 할인'],
+tabUS:['🍽️ 餐錢＋小費','🍽️ Meal + Tip','🍽️ 食事＋チップ','🍽️ 식사＋팁'],
+tabIntl:['🍽️ 餐錢＋服務費','🍽️ Meal + Fees','🍽️ 食事＋サービス料','🍽️ 식사＋서비스료'],
+tabShop:['🛍️ 購物折扣','🛍️ Shopping','🛍️ ショッピング割引','🛍️ 쇼핑 할인'],
+bill:['餐費（稅前小計）','Food subtotal (pre-tax)','食事代（税抜）','식사 금액(세전)'],
+stateL:['州（自動帶入州基本稅率）','State (fills base tax rate)','州（州の基本税率を自動入力）','주(주 기본 세율 자동 입력)'],
+stateNone:['— 選擇州 —','— Select state —','— 州を選択 —','— 주 선택 —'],
+stax:['銷售稅 %（可手動改，例如加上市／郡稅）','Sales tax % (editable, add city/county tax)','売上税 %（編集可。市・郡の税を加算）','판매세 %(수정 가능, 시/카운티 세금 추가)'],
+taxNote:['州稅率為基本稅率，實際還會加地方稅（例：紐約市 8.875%），部分州餐飲稅另計，請以收據為準。','State base rate only; local taxes are added on top (e.g. NYC 8.875%) and some states tax meals separately. Check your receipt.','州の基本税率です。市などの地方税が加算され（例：NYC 8.875%）、州によっては飲食税が別にかかります。レシートで確認してください。','주 기본 세율입니다. 지방세가 추가되며(예: 뉴욕시 8.875%) 일부 주는 외식세가 별도입니다. 영수증을 확인하세요.'],
+tipL:['小費比例','Tip %','チップ %','팁 %'],
+tipC:['自訂 %','Custom %','カスタム %','직접 입력 %'],
+tipBase:['小費計算基礎','Tip based on','チップの計算基準','팁 계산 기준'],
+pre:['稅前金額（常見）','Pre-tax amount (common)','税抜金額（一般的）','세전 금액(일반적)'],
+post:['稅後金額','Post-tax amount','税込金額','세후 금액'],
+fees:['其他費用','Other fees','その他の費用','기타 비용'],
+svcP:['服務費 %','Service charge %','サービス料 %','서비스료 %'],
+ccP:['信用卡附加費 %（按餐費小計）','Card surcharge % (on subtotal)','カード手数料 %（小計に対して）','카드 수수료 %(소계 기준)'],
+dlv:['外送費','Delivery fee','配達料','배달비'],
+plat:['平台服務費','Platform fee','プラットフォーム手数料','플랫폼 수수료'],
+oth:['其他固定費用','Other fixed fees','その他の固定費','기타 고정 비용'],
+cpn:['優惠券／折抵','Coupon / discount','クーポン／値引き','쿠폰 / 할인'],
+usHint:['大團體常被自動加收服務費（多為 18%），已含的話小費可選 0%。信用卡附加費付現通常免收。','Large parties are often auto-charged service (usually 18%); if included, pick 0% tip. Card surcharge is usually waived for cash.','大人数では自動でサービス料（多くは18%）が加算されます。含まれる場合はチップを0%に。カード手数料は現金なら通常免除です。','단체 손님은 서비스료(보통 18%)가 자동 부과됩니다. 포함된 경우 팁 0%. 카드 수수료는 현금 결제 시 보통 면제됩니다.'],
+people:['分帳人數','Split between','人数（割り勘）','인원(더치페이)'],
+itax:['稅 %','Tax %','税 %','세금 %'],
+isvc:['服務費 %','Service charge %','サービス料 %','서비스료 %'],
+iper:['每人固定費（席位費、小菜等）','Per-person fixed fee (cover, seat charge)','1人あたり固定費（席料・お通し等）','1인당 고정비(자릿세, 기본 안주 등)'],
+ioth:['其他固定費用（開瓶費等）','Other fixed fees (corkage etc.)','その他の固定費（持込料など）','기타 고정 비용(코르키지 등)'],
+rSub:['餐費','Food','食事代','식사 금액'],
+rCpn:['優惠券','Coupon','クーポン','쿠폰'],
+rTax:['稅','Tax','税','세금'],
+rTip:['小費','Tip','チップ','팁'],
+rSvc:['服務費','Service charge','サービス料','서비스료'],
+rFeeUS:['外送／平台／其他費','Delivery / platform / other','配達・手数料・その他','배달/플랫폼/기타'],
+rFeeIntl:['席位費／其他固定費','Cover / other fixed fees','席料・その他固定費','자릿세/기타 고정비'],
+rCc:['信用卡附加費','Card surcharge','カード手数料','카드 수수료'],
+rTot:['總額','Total','合計','총액'],
+rPer:['每人','Per person','1人あたり','1인당'],
+rPct:['含稅與各項費用，實際比餐費多付 {p}%','Tax and fees add {p}% over the food price','税・手数料込みで食事代より {p}% 高くなります','세금·수수료 포함 시 식사 금액보다 {p}% 더 냅니다'],
+price:['商品原價（單件）','Original price (each)','定価（1点）','정가(개당)'],
+qty:['數量','Quantity','数量','수량'],
+disc:['折扣 % off','Discount % off','割引 %OFF','할인 %'],
+foldL:['折數（8折輸入 8，85折輸入 8.5）','Fold (8折 = enter 8, 85折 = 8.5)','折数（8折は8、85折は8.5）','절수(8折=8, 85折=8.5)'],
+dealL:['加碼優惠','Extra deal','追加の特典','추가 혜택'],
+taxPct:['銷售稅 %（選填）','Sales tax % (optional)','消費税 %（任意）','세금 %(선택)'],
+order:['計算順序：先折扣，再套用加碼優惠，最後加稅。','Order: discount first, then the deal, then tax.','計算順序：割引→追加特典→税の順です。','계산 순서: 할인 → 추가 혜택 → 세금.'],
+oOrig:['原價小計','Original subtotal','定価合計','정가 합계'],
+oAfter:['折後價','After discounts','割引後','할인 후'],
+oSaved:['共省','You save','節約額','절약 금액'],
+oTotal:['應付總額','Total to pay','お支払い合計','지불 총액'],
+eff:['實際折扣約 {p}% off（不含稅）','Effective discount ≈ {p}% off (pre-tax)','実質割引 約 {p}%（税抜）','실제 할인율 약 {p}%(세전)'],
+d_none:['無','None','なし','없음'],
+d_bogo:['買一送一','Buy 1 Get 1 free','1つ買うと1つ無料','1+1'],
+d_b2g1:['買二送一','Buy 2 Get 1 free','2つ買うと1つ無料','2+1'],
+d_half2:['第二件半價','2nd item half price','2点目半額','두 번째 반값'],
+d_nth:['第二件 X 折','2nd item X-fold','2点目 X折','두 번째 X折'],
+d_extra:['結帳再折 X%（Outlet）','Extra X% off at checkout (outlet)','レジでさらにX%OFF（アウトレット）','계산 시 추가 X% 할인(아울렛)'],
+d_thresh:['滿額折（滿 X 折 Y）','Spend X, get Y off','X以上でY引き','X 이상 Y 할인'],
+pExtra:['再折 %','Extra %','追加 %','추가 %'],
+pNth:['折數（6 = 6折）','Fold (6 = 6折)','折数（6=6折）','절수(6=6折)'],
+pX:['滿 X 金額','Spend X','X円以上 金額','X 이상 금액'],
+pY:['折 Y 金額','Y off','Y 値引き額','Y 할인액']
+};
+const SHOPTAX={
+TWD:['台灣標價已含 5% 營業稅，通常不用再加；若為未稅價再填 5。','Taiwan prices include 5% VAT; add 5 only if the price is pre-tax.','台湾の表示価格は5%営業税込みです。税抜価格の場合のみ5を入力。','대만 표시 가격에는 5% 영업세가 포함돼 있습니다. 세전 가격일 때만 5 입력.'],
+JPY:['日本標價多為税込；若是税抜請填 10（食品外帶 8）。','Prices in Japan are usually tax-included; enter 10 if tax-excluded (8 for takeout food).','日本の価格は税込が多く、税抜表示なら10（持ち帰り食品は8）を入力。','일본 가격은 보통 세금 포함입니다. 세전이면 10 입력(테이크아웃 식품은 8).'],
+USD:['美國標價不含稅，請填當地 sales tax（NJ 6.625%、NYC 8.875%、OR/DE 0%）。','US prices exclude tax; enter local sales tax (NJ 6.625%, NYC 8.875%, OR/DE 0%).','米国の表示価格は税抜です。現地のセールスタックスを入力（NJ 6.625%、NYC 8.875%、OR/DE 0%）。','미국 가격은 세전입니다. 현지 판매세를 입력하세요(NJ 6.625%, NYC 8.875%, OR/DE 0%).'],
+EUR:['歐洲標價已含 VAT（約 19～25%），不用再加；遊客退稅需另計。','European prices include VAT (about 19–25%); tourist tax refunds are separate.','欧州の表示価格はVAT（約19〜25%）込みです。旅行者の免税は別計算。','유럽 가격에는 VAT(약 19~25%)가 포함됩니다. 관광객 환급은 별도.'],
+KRW:['韓國標價已含 10% 附加價值稅（VAT），不用再加。','Korean prices include 10% VAT.','韓国の表示価格は10%付加価値税込みです。','한국 가격에는 10% 부가가치세가 포함됩니다.']
+};
+const DINE={
+TWD:['台灣不收小費；餐廳常加收 10% 服務費（加一），自帶酒水可能有開瓶費，標價已含 5% 營業稅。','No tipping in Taiwan; restaurants often add a 10% service charge, and corkage may apply. Prices include 5% tax.','台湾ではチップ不要。10%のサービス料が加算されることが多く、持込料がかかる場合も。表示は5%税込み。','대만은 팁 문화가 없습니다. 10% 서비스료가 붙는 경우가 많고 코르키지가 있을 수 있습니다. 가격은 5% 세금 포함.'],
+JPY:['日本不收小費；居酒屋常有「お通し」座位費（約 ¥300～500／人），高級店可能另收 10～15% サービス料。税抜表示才需填 10% 稅。','No tipping in Japan; izakaya often charge otoshi (about ¥300–500 per person) and upscale places 10–15% service. Enter 10% tax only for tax-excluded prices.','日本ではチップ不要。居酒屋はお通し（1人約300〜500円）、高級店は10〜15%のサービス料がかかることも。税抜表示のときのみ税10%を入力。','일본은 팁이 없습니다. 이자카야는 오토시(1인 약 300~500엔), 고급 식당은 10~15% 서비스료가 붙을 수 있습니다. 세전 표기일 때만 세금 10% 입력.'],
+EUR:['歐洲小費非必要；義大利常見 coperto（約 €1～3／人）與 10～15% servizio，法國菜單價多已含服務費。標價已含 VAT。','Tipping is optional in Europe; Italy often adds coperto (about €1–3 per person) and 10–15% servizio, and French menu prices usually include service. VAT is included.','欧州ではチップは任意。イタリアではコペルト（1人約1〜3ユーロ）と10〜15%のサービス料が一般的で、フランスは価格にサービス料込み。VAT込み表示。','유럽은 팁이 선택 사항입니다. 이탈리아는 코페르토(1인 약 €1~3)와 10~15% 서비스료가 흔하고, 프랑스는 보통 서비스료 포함 가격입니다. VAT 포함.'],
+KRW:['韓國不收小費；標價已含 10% VAT，飯店餐廳可能另收 10% 服務費，帶酒需付 corkage。','No tipping in Korea; prices include 10% VAT, hotel restaurants may add 10% service, and corkage applies for BYO drinks.','韓国ではチップ不要。表示は10%VAT込みで、ホテルのレストランは10%のサービス料が別途かかることも。持込は持込料。','한국은 팁이 없습니다. 가격은 10% VAT 포함이며 호텔 레스토랑은 10% 서비스료가 붙을 수 있고 주류 반입 시 코르키지가 있습니다.']
+};
+const NM={TWD:['🇹🇼 台幣 TWD','🇹🇼 Taiwan dollar TWD','🇹🇼 台湾ドル TWD','🇹🇼 대만 달러 TWD'],JPY:['🇯🇵 日幣 JPY','🇯🇵 Japanese yen JPY','🇯🇵 日本円 JPY','🇯🇵 일본 엔 JPY'],USD:['🇺🇸 美金 USD','🇺🇸 US dollar USD','🇺🇸 米ドル USD','🇺🇸 미국 달러 USD'],EUR:['🇪🇺 歐元 EUR','🇪🇺 Euro EUR','🇪🇺 ユーロ EUR','🇪🇺 유로 EUR'],KRW:['🇰🇷 韓元 KRW','🇰🇷 Korean won KRW','🇰🇷 韓国ウォン KRW','🇰🇷 한국 원 KRW']};
+const CUR={
+TWD:{sym:'NT$',dec:0,fold:1,chips:[['9折',10],['85折',15],['8折',20],['7折',30],['5折',50]],O:['none','bogo','b2g1','nth','extra','thresh'],loc:{}},
+JPY:{sym:'¥',dec:0,chips:[['10%OFF',10],['20%OFF',20],['30%OFF',30],['半額',50]],O:['none','bogo','b2g1','half2','extra','thresh'],loc:{bogo:'1点買うと1点無料',b2g1:'3点で1点無料',half2:'2点目半額',extra:'レジでさらにX%OFF',thresh:'X円以上でY円引き'},nat:2},
+USD:{sym:'$',dec:2,chips:[['10%',10],['20%',20],['30%',30],['40%',40],['50%',50],['70%',70]],O:['none','bogo','b2g1','half2','extra','thresh'],loc:{bogo:'BOGO',b2g1:'Buy 2 Get 1 Free',half2:'2nd item 50% off',extra:'Extra X% off',thresh:'Spend $X get $Y off'},nat:1},
+EUR:{sym:'€',dec:2,chips:[['−10%',10],['−20%',20],['−30%',30],['−50%',50]],O:['none','bogo','b2g1','half2','extra','thresh'],loc:{bogo:'1+1 gratis',b2g1:'3 für 2 / 3 pour 2',extra:'Soldes'}},
+KRW:{sym:'₩',dec:0,chips:[['10%',10],['20%',20],['30%',30],['50%',50]],O:['none','bogo','b2g1','half2','extra','thresh'],loc:{bogo:'1+1',b2g1:'2+1',half2:'두 번째 반값',extra:'추가 X% 할인',thresh:'X원 이상 Y원 할인'},nat:3}
+};
+CUR.TWD.nat=0;
+const ST=[['Alabama',4],['Alaska',0],['Arizona',5.6],['Arkansas',6.5],['California',7.25],['Colorado',2.9],['Connecticut',6.35],['Delaware',0],['Washington DC',6],['Florida',6],['Georgia',4],['Hawaii',4],['Idaho',6],['Illinois',6.25],['Indiana',7],['Iowa',6],['Kansas',6.5],['Kentucky',6],['Louisiana',5],['Maine',5.5],['Maryland',6],['Massachusetts',6.25],['Michigan',6],['Minnesota',6.875],['Mississippi',7],['Missouri',4.225],['Montana',0],['Nebraska',5.5],['Nevada',6.85],['New Hampshire',0],['New Jersey',6.625],['New Mexico',5],['New York',4],['New York City',8.875],['North Carolina',4.75],['North Dakota',5],['Ohio',5.75],['Oklahoma',4.5],['Oregon',0],['Pennsylvania',6],['Rhode Island',7],['South Carolina',6],['South Dakota',4.2],['Tennessee',7],['Texas',6.25],['Utah',6.1],['Vermont',6],['Virginia',5.3],['Washington',6.5],['West Virginia',6],['Wisconsin',5],['Wyoming',4]];
+let L=0,K='USD',cur=CUR.USD,tip=15;
+const t=k=>T[k][L];
+const FMT=(v,k)=>{const c=CUR[k];v=c.dec?v:Math.round(v);return c.sym+v.toLocaleString('en-US',{minimumFractionDigits:c.dec,maximumFractionDigits:c.dec})};
+const f=v=>FMT(v,K);
+const REF={USD:1,TWD:32.4,JPY:158,EUR:0.8937,KRW:1344};
+let RT=Object.assign({},REF),HOME='none',fxState='loading',fxDate='';
+const conv=(v,a,b)=>v/RT[a]*RT[b];
+const hc=v=>(HOME!=='none'&&HOME!==K)?'≈ '+FMT(conv(v,K,HOME),HOME)+' ('+HOME+')':'';
+function r2(v){const s=v*100,fl=Math.floor(s+1e-7),d=s-fl;if(Math.abs(d-0.5)<1e-7)return(fl%2===0?fl:fl+1)/100;return Math.round(s)/100}
+const R=v=>cur.dec===2?r2(v):v;
+function chips(box,items,cb,sel){
+  box.innerHTML='';
+  items.forEach(([l,v])=>{const b=document.createElement('button');b.textContent=l;
+    b.onclick=()=>{cb(v);[...box.children].forEach(c=>c.classList.toggle('on',c===b))};
+    if(v===sel)b.classList.add('on');box.appendChild(b)});
+}
+chips($('tipChips'),[['0%',0],['15%',15],['18%',18],['20%',20],['25%',25]],v=>{tip=v;$('tipC').value='';calcTip()},15);
+$('tipC').oninput=()=>{[...$('tipChips').children].forEach(c=>c.classList.remove('on'));tip=n('tipC');calcTip()};
+function row(id,v){$(id+'R').classList.toggle('hide',!(v>0))}
+function calcTip(){
+  const us=K==='USD',b=n('bill'),p=Math.max(1,Math.floor(n('ppl'))||1);
+  let cpn,tx,tp=0,sv,fee,cc=0;
+  if(us){
+    cpn=R(Math.min(b,n('cpn')));const base=b-cpn;
+    tx=R(base*n('stax')/100);
+    tp=R((($('tipBase').value==='post')?base+tx:base)*tip/100);
+    sv=R(base*n('svc')/100);fee=R(n('dlv')+n('plat')+n('oth'));
+    cc=R(base*n('cc')/100);
+  }else{
+    cpn=R(Math.min(b,n('icpn')));const base=b-cpn;
+    tx=R(base*n('itax')/100);sv=R(base*n('isvc')/100);fee=R(n('iper')*p+n('ioth'));
+  }
+  const tot=R(b-cpn+tx+tp+sv+fee+cc);
+  $('rSub').textContent=f(b);$('rCpn').textContent='-'+f(cpn);$('rTax').textContent=f(tx);
+  $('rTip').textContent=f(tp);$('rSvc').textContent=f(sv);$('rFee').textContent=f(fee);
+  $('hc1').textContent=hc(tot);$('rCc').textContent=f(cc);$('rTot').textContent=f(tot);$('rPer').textContent=f(tot/p);
+  row('rCpn',cpn);row('rTax',tx);row('rTip',tp);row('rSvc',sv);row('rFee',fee);row('rCc',cc);
+  $('rPct').textContent=b>0&&tot!==b?t('rPct').replace('{p}',((tot/b-1)*100).toFixed(1)):'';
+}
+['bill','ppl','stax','tipBase','svc','cc','dlv','plat','oth','cpn','itax','isvc','iper','ioth','icpn'].forEach(i=>{$(i).oninput=calcTip;$(i).onchange=calcTip});
+$('st').onchange=()=>{const v=$('st').value;$('stax').value=v===''?'':(ST[v][1]||'');calcTip()};
+
+function offPct(){
+  const x=n('off');
+  if(cur.fold){if(x<=0)return 0;return x<=10?(10-x)*10:Math.max(0,100-x)}
+  return Math.min(100,x);
+}
+const foldPct=x=>x<=0?100:(x<=10?x*10:x);
+function calcShop(){
+  const p=n('price'),q=Math.max(1,Math.floor(n('qty'))||1),d=offPct();
+  const pu=p*(1-d/100),orig=p*q;
+  let sub=pu*q;const deal=$('deal').value,x=n('x'),y=n('y');
+  if(deal==='bogo')sub=pu*Math.ceil(q/2);
+  else if(deal==='b2g1')sub=pu*(q-Math.floor(q/3));
+  else if(deal==='half2')sub=pu*q-Math.floor(q/2)*pu*0.5;
+  else if(deal==='nth')sub=pu*q-Math.floor(q/2)*pu*(1-foldPct(x)/100);
+  else if(deal==='extra')sub=sub*(1-Math.min(100,x)/100);
+  else if(deal==='thresh'&&x>0&&sub>=x)sub=Math.max(0,sub-y);
+  const tx=sub*n('tax')/100,tot=sub+tx;
+  $('orig').textContent=f(orig);$('after').textContent=f(sub);
+  $('taxAmt').textContent=f(tx);$('saved').textContent=f(orig-sub);
+  $('total').textContent=f(tot);$('hc2').textContent=hc(tot);
+  $('eff').textContent=orig>0?t('eff').replace('{p}',((1-sub/orig)*100).toFixed(1)):'';
+}
+function dealUI(){
+  const d=$('deal').value;
+  $('dp').classList.toggle('hide',!['extra','thresh','nth'].includes(d));
+  $('yw').classList.toggle('hide',d!=='thresh');
+  $('l1').textContent=t(d==='extra'?'pExtra':d==='nth'?'pNth':'pX');
+}
+function render(){
+  document.documentElement.lang=['zh-Hant','en','ja','ko'][L];
+  document.title=t('title');
+  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
+  document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
+  const us=K==='USD';
+  $('us').classList.toggle('hide',!us);$('intl').classList.toggle('hide',us);
+  $('t1').textContent=t(us?'tabUS':'tabIntl');
+  $('rFeeL').textContent=t(us?'rFeeUS':'rFeeIntl');
+  $('ihint').textContent=us?'':DINE[K][L];
+  $('taxHint').textContent=SHOPTAX[K][L];
+  $('offL').textContent=t(cur.fold?'foldL':'disc');
+  const cv=$('cur').value||K;
+  $('cur').innerHTML=Object.keys(NM).map(k=>'<option value="'+k+'">'+NM[k][L]+'</option>').join('');$('cur').value=cv;
+  const tv=$('tipBase').value||'pre';
+  $('tipBase').innerHTML='<option value="pre">'+t('pre')+'</option><option value="post">'+t('post')+'</option>';$('tipBase').value=tv;
+  const sv=$('st').value;
+  $('st').innerHTML='<option value="">'+t('stateNone')+'</option>'+ST.map((x,i)=>'<option value="'+i+'">'+x[0]+(x[1]?' ('+x[1]+'%)':'')+'</option>').join('');$('st').value=sv;
+  const dv=$('deal').value;
+  $('deal').innerHTML=cur.O.map(o=>{const lc=cur.loc[o];return '<option value="'+o+'">'+t('d_'+o)+(lc&&cur.nat!==L?' ('+lc+')':'')+'</option>'}).join('');
+  if(cur.O.includes(dv))$('deal').value=dv;
+  const so=Object.keys(NM).map(k=>'<option value="'+k+'">'+NM[k][L]+'</option>').join('');
+  const keep=(id,def,extra)=>{const v=$(id).value||def;$(id).innerHTML=(extra||'')+so;$(id).value=v};
+  keep('fxF','USD');keep('fxT','TWD');keep('fxH','none','<option value="none">'+t('fxNone')+'</option>');
+  dealUI();calcTip();calcShop();calcFx();showFx();
+}
+function setCur(k){
+  K=k;cur=CUR[k];
+  $('off').value='';$('off').placeholder=cur.fold?'8':'20';
+  chips($('offChips'),cur.chips,v=>{$('off').value=cur.fold?v/10:v;calcShop()});
+  $('tax').value='';$('x').value='';$('y').value='';
+  ['itax','isvc','iper','ioth','icpn'].forEach(i=>$(i).value='');
+  $('deal').value='none';
+  render();
+}
+$('cur').onchange=()=>setCur($('cur').value);
+$('lang').onchange=()=>{L=+$('lang').value;render()};
+$('deal').onchange=()=>{$('x').value='';$('y').value='';dealUI();calcShop()};
+['price','qty','off','x','y','tax'].forEach(i=>$(i).oninput=calcShop);
+function showTab(i){['p1','p2','p3'].forEach((p,j)=>$(p).classList.toggle('hide',j!==i));['t1','t2','t3'].forEach((b,j)=>$(b).classList.toggle('on',j===i))}
+$('t1').onclick=()=>showTab(0);$('t2').onclick=()=>showTab(1);$('t3').onclick=()=>showTab(2);
+function showFx(){
+  const m={auto:'fxAuto',fail:'fxFail',loading:'fxLoading',manual:'fxManual',ref:'fxRefMsg'}[fxState];
+  $('fxStat').textContent=t(m).replace('{d}',fxDate);
+}
+const tmo=(u,ms)=>Promise.race([fetch(u).then(r=>r.json()),new Promise((_,j)=>setTimeout(()=>j(new Error('timeout')),ms))]);
+function applyRates(r,d){
+  ['TWD','JPY','EUR','KRW'].forEach(k=>RT[k]=r[k]);
+  fxState='auto';fxDate=d;fxRatesUI();showFx();calcFx();calcTip();calcShop();
+}
+async function loadRates(force){
+  fxState='loading';showFx();
+  if(!force){try{const c=JSON.parse(localStorage.getItem('fxRates1')||'null');if(c&&Date.now()-c.t<6*3600e3){applyRates(c.r,c.d);return}}catch(e){}}
+  let r=null,d='';
+  try{const j=await tmo('https://open.er-api.com/v6/latest/USD',7000);
+    if(j.result==='success'&&j.rates){r=j.rates;d=(j.time_last_update_utc||'').slice(0,16)}}catch(e){}
+  if(!r){try{const j=await tmo('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',7000);
+    const u=j.usd;if(u){r={TWD:u.twd,JPY:u.jpy,EUR:u.eur,KRW:u.krw};d=j.date||''}}catch(e){}}
+  if(r&&['TWD','JPY','EUR','KRW'].every(k=>r[k]>0)){
+    applyRates(r,d);
+    try{localStorage.setItem('fxRates1',JSON.stringify({t:Date.now(),r:{TWD:r.TWD,JPY:r.JPY,EUR:r.EUR,KRW:r.KRW},d:d}))}catch(e){}
+  }else{fxState='fail';showFx()}
+}
+function calcFx(){
+  const a=n('fxA'),fr=$('fxF').value,to=$('fxT').value;
+  if(!fr||!to)return;
+  $('fxR').textContent=FMT(conv(a,fr,to),to);
+  $('fxRate').textContent='1 '+fr+' = '+conv(1,fr,to).toLocaleString('en-US',{maximumFractionDigits:4})+' '+to;
+}
+function fxRatesUI(){
+  $('fxRates').innerHTML=['TWD','JPY','EUR','KRW'].map(k=>'<div class="row"><div style="flex:0 0 78px;padding-top:12px">1 USD =</div><div><input id="rt_'+k+'" type="number" inputmode="decimal" value="'+RT[k]+'"></div><div style="flex:0 0 46px;padding-top:12px">'+k+'</div></div>').join('');
+  ['TWD','JPY','EUR','KRW'].forEach(k=>$('rt_'+k).oninput=()=>{const v=parseFloat($('rt_'+k).value);RT[k]=v>0?v:REF[k];fxState='manual';showFx();calcFx();calcTip();calcShop()});
+}
+fxRatesUI();
+$('fxA').oninput=calcFx;$('fxF').onchange=calcFx;$('fxT').onchange=calcFx;
+$('fxS').onclick=()=>{const a=$('fxF').value;$('fxF').value=$('fxT').value;$('fxT').value=a;calcFx()};
+$('fxReset').onclick=()=>{RT=Object.assign({},REF);fxState='ref';fxRatesUI();showFx();calcFx();calcTip();calcShop()};
+$('fxRefresh').onclick=()=>loadRates(true);
+$('fxH').onchange=()=>{HOME=$('fxH').value;calcTip();calcShop()};
+(function(){const nl=(navigator.language||'').slice(0,2);L=nl==='ja'?2:nl==='ko'?3:nl==='en'?1:0;$('lang').value=L})();
+$('cur').innerHTML='<option value="USD">USD</option>';
+setCur('USD');
+loadRates(false);
+</script>
+</body>
+</html>

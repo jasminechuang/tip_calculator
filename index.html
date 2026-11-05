@@ -30,6 +30,8 @@ input,select{width:100%;padding:12px;font-size:17px;border:1px solid var(--ln);b
 .hint{font-size:13px;color:var(--mu);margin-top:6px}
 .btn{width:100%;padding:10px;margin-top:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:10px;font-size:16px}
 a{color:var(--ac)}
+.chk{display:flex;gap:8px;align-items:center;color:var(--tx);font-size:15px;margin-top:10px}
+.chk input{width:auto}
 .hide{display:none!important}
 </style>
 </head>
@@ -54,6 +56,8 @@ a{color:var(--ac)}
     <label data-i="bill"></label>
     <input id="bill" type="number" inputmode="decimal" placeholder="0.00">
     <div id="us">
+      <label data-i="modeL"></label>
+      <select id="mode"></select>
       <label data-i="stateL"></label>
       <select id="st"></select>
       <label data-i="stax"></label>
@@ -65,19 +69,24 @@ a{color:var(--ac)}
       <label data-i="tipBase"></label>
       <select id="tipBase"></select>
       <label data-i="fees"></label>
-      <div class="row" style="margin-top:0">
+      <div class="row" id="rSvcRow" style="margin-top:0">
         <div><label data-i="svcP"></label><input id="svc" type="number" inputmode="decimal" placeholder="18"></div>
         <div><label data-i="ccP"></label><input id="cc" type="number" inputmode="decimal" placeholder="3.5"></div>
       </div>
-      <div class="row">
+      <div class="row" id="rDelRow">
         <div><label data-i="dlv"></label><input id="dlv" type="number" inputmode="decimal" placeholder="0.00"></div>
         <div><label data-i="plat"></label><input id="plat" type="number" inputmode="decimal" placeholder="0.00"></div>
       </div>
+      <div class="row" id="rDel2">
+        <div><label data-i="fdisc"></label><input id="fdisc" type="number" inputmode="decimal" placeholder="0.00"></div>
+      </div>
+      <label class="chk" id="rDel3"><input type="checkbox" id="taxFee" checked><span data-i="taxFee"></span></label>
       <div class="row">
         <div><label data-i="oth"></label><input id="oth" type="number" inputmode="decimal" placeholder="0.00"></div>
         <div><label data-i="cpn"></label><input id="cpn" type="number" inputmode="decimal" placeholder="0.00"></div>
       </div>
-      <div class="hint" data-i="usHint"></div>
+      <div class="hint" id="usHint" data-i="usHint"></div>
+      <div class="hint" id="delHint" data-i="delHint"></div>
     </div>
     <div id="intl" class="hide">
       <label data-i="itax"></label><input id="itax" type="number" inputmode="decimal" placeholder="0">
@@ -97,6 +106,7 @@ a{color:var(--ac)}
     <div id="rTipR"><span data-i="rTip"></span><b id="rTip"></b></div>
     <div id="rSvcR"><span data-i="rSvc"></span><b id="rSvc"></b></div>
     <div id="rFeeR"><span id="rFeeL"></span><b id="rFee"></b></div>
+    <div id="rFdR"><span data-i="rFd"></span><b id="rFd" class="save"></b></div>
     <div id="rCcR"><span data-i="rCc"></span><b id="rCc"></b></div>
     <div class="big"><span data-i="rTot"></span><span id="rTot"></span></div>
     <div><span data-i="rPer"></span><b id="rPer"></b></div>
@@ -167,6 +177,13 @@ const $=id=>document.getElementById(id);
 const n=id=>parseFloat($(id).value)||0;
 // [中文, English, 日本語, 한국어]
 const T={
+modeL:['訂單類型','Order type','注文タイプ','주문 유형'],
+mDine:['內用／外帶','Dine-in / takeout','店内・テイクアウト','매장/포장'],
+mDel:['外送 App（Uber Eats 等）','Delivery app (Uber Eats etc.)','デリバリーアプリ（Uber Eatsなど）','배달 앱(Uber Eats 등)'],
+fdisc:['外送／服務費優惠（折抵金額）','Delivery / service fee promo (amount off)','配達料・サービス料の割引額','배달/서비스료 할인 금액'],
+taxFee:['稅也計算在外送費與平台服務費上','Tax also applies to delivery and service fees','税は配達料・サービス料にも課税','세금을 배달비·서비스료에도 적용'],
+delHint:['外送 App 的稅常會連外送費、服務費一起算，優惠折抵不會減少稅額。例：小計 12.05、外送費 0.49、服務費 3.00、NJ 稅 6.625% → 稅 1.03，扣掉優惠 0.73 後總額 15.84。','Delivery apps often tax the delivery and service fees too, and promos do not reduce the tax. Example: subtotal 12.05, delivery 0.49, service fee 3.00, NJ tax 6.625% gives tax 1.03; after 0.73 in promos the total is 15.84.','デリバリーアプリでは配達料・サービス料にも課税されることが多く、割引は税額を減らしません。例：小計12.05、配達料0.49、サービス料3.00、NJ税6.625%で税1.03、割引0.73を引いた合計は15.84。','배달 앱은 배달비·서비스료에도 세금을 붙이는 경우가 많고, 할인은 세금을 줄이지 않습니다. 예: 소계 12.05, 배달비 0.49, 서비스료 3.00, NJ 세율 6.625%면 세금 1.03, 할인 0.73을 뺀 총액은 15.84.'],
+rFd:['外送／服務費優惠','Delivery / service fee promo','配達・サービス料の割引','배달/서비스료 할인'],
 tabFx:['💱 匯率','💱 FX rate','💱 為替','💱 환율'],
 fxAmt:['金額','Amount','金額','금액'],
 fxFrom:['從','From','換算元','환산 전'],
@@ -202,7 +219,7 @@ fees:['其他費用','Other fees','その他の費用','기타 비용'],
 svcP:['服務費 %','Service charge %','サービス料 %','서비스료 %'],
 ccP:['信用卡附加費 %（按餐費小計）','Card surcharge % (on subtotal)','カード手数料 %（小計に対して）','카드 수수료 %(소계 기준)'],
 dlv:['外送費','Delivery fee','配達料','배달비'],
-plat:['平台服務費','Platform fee','プラットフォーム手数料','플랫폼 수수료'],
+plat:['平台服務費（Uber 的「其他費用」）','Service fee (Uber “Other fees”)','サービス料（Uberの「その他の手数料」）','서비스 수수료(Uber "기타 비용")'],
 oth:['其他固定費用','Other fixed fees','その他の固定費','기타 고정 비용'],
 cpn:['優惠券／折抵','Coupon / discount','クーポン／値引き','쿠폰 / 할인'],
 usHint:['大團體常被自動加收服務費（多為 18%），已含的話小費可選 0%。信用卡附加費付現通常免收。','Large parties are often auto-charged service (usually 18%); if included, pick 0% tip. Card surcharge is usually waived for cash.','大人数では自動でサービス料（多くは18%）が加算されます。含まれる場合はチップを0%に。カード手数料は現金なら通常免除です。','단체 손님은 서비스료(보통 18%)가 자동 부과됩니다. 포함된 경우 팁 0%. 카드 수수료는 현금 결제 시 보통 면제됩니다.'],
@@ -290,25 +307,28 @@ $('tipC').oninput=()=>{[...$('tipChips').children].forEach(c=>c.classList.remove
 function row(id,v){$(id+'R').classList.toggle('hide',!(v>0))}
 function calcTip(){
   const us=K==='USD',b=n('bill'),p=Math.max(1,Math.floor(n('ppl'))||1);
-  let cpn,tx,tp=0,sv,fee,cc=0;
+  let cpn,tx,tp=0,sv,fee,cc=0,fd=0;
   if(us){
+    const del=$('mode').value==='del';
     cpn=R(Math.min(b,n('cpn')));const base=b-cpn;
-    tx=R(base*n('stax')/100);
+    const dl=del?n('dlv'):0,pl=del?n('plat'):0;
+    tx=R((base+(del&&$('taxFee').checked?dl+pl:0))*n('stax')/100);
     tp=R((($('tipBase').value==='post')?base+tx:base)*tip/100);
-    sv=R(base*n('svc')/100);fee=R(n('dlv')+n('plat')+n('oth'));
-    cc=R(base*n('cc')/100);
+    sv=del?0:R(base*n('svc')/100);fee=R(dl+pl+n('oth'));
+    fd=del?R(Math.min(dl+pl,n('fdisc'))):0;
+    cc=del?0:R(base*n('cc')/100);
   }else{
     cpn=R(Math.min(b,n('icpn')));const base=b-cpn;
     tx=R(base*n('itax')/100);sv=R(base*n('isvc')/100);fee=R(n('iper')*p+n('ioth'));
   }
-  const tot=R(b-cpn+tx+tp+sv+fee+cc);
+  const tot=R(b-cpn+tx+tp+sv+fee+cc-fd);
   $('rSub').textContent=f(b);$('rCpn').textContent='-'+f(cpn);$('rTax').textContent=f(tx);
   $('rTip').textContent=f(tp);$('rSvc').textContent=f(sv);$('rFee').textContent=f(fee);
-  $('hc1').textContent=hc(tot);$('rCc').textContent=f(cc);$('rTot').textContent=f(tot);$('rPer').textContent=f(tot/p);
-  row('rCpn',cpn);row('rTax',tx);row('rTip',tp);row('rSvc',sv);row('rFee',fee);row('rCc',cc);
+  $('rFd').textContent='-'+f(fd);$('hc1').textContent=hc(tot);$('rCc').textContent=f(cc);$('rTot').textContent=f(tot);$('rPer').textContent=f(tot/p);
+  row('rFd',fd);row('rCpn',cpn);row('rTax',tx);row('rTip',tp);row('rSvc',sv);row('rFee',fee);row('rCc',cc);
   $('rPct').textContent=b>0&&tot!==b?t('rPct').replace('{p}',((tot/b-1)*100).toFixed(1)):'';
 }
-['bill','ppl','stax','tipBase','svc','cc','dlv','plat','oth','cpn','itax','isvc','iper','ioth','icpn'].forEach(i=>{$(i).oninput=calcTip;$(i).onchange=calcTip});
+['bill','ppl','fdisc','taxFee','stax','tipBase','svc','cc','dlv','plat','oth','cpn','itax','isvc','iper','ioth','icpn'].forEach(i=>{$(i).oninput=calcTip;$(i).onchange=calcTip});
 $('st').onchange=()=>{const v=$('st').value;$('stax').value=v===''?'':(ST[v][1]||'');calcTip()};
 
 function offPct(){
@@ -339,6 +359,11 @@ function dealUI(){
   $('yw').classList.toggle('hide',d!=='thresh');
   $('l1').textContent=t(d==='extra'?'pExtra':d==='nth'?'pNth':'pX');
 }
+function modeUI(){
+  const del=$('mode').value==='del';
+  ['rSvcRow','usHint'].forEach(i=>$(i).classList.toggle('hide',del));
+  ['rDelRow','rDel2','rDel3','delHint'].forEach(i=>$(i).classList.toggle('hide',!del));
+}
 function render(){
   document.documentElement.lang=['zh-Hant','en','ja','ko'][L];
   document.title=t('title');
@@ -353,6 +378,8 @@ function render(){
   $('offL').textContent=t(cur.fold?'foldL':'disc');
   const cv=$('cur').value||K;
   $('cur').innerHTML=Object.keys(NM).map(k=>'<option value="'+k+'">'+NM[k][L]+'</option>').join('');$('cur').value=cv;
+  const mv=$('mode').value||'dine';
+  $('mode').innerHTML='<option value="dine">'+t('mDine')+'</option><option value="del">'+t('mDel')+'</option>';$('mode').value=mv;
   const tv=$('tipBase').value||'pre';
   $('tipBase').innerHTML='<option value="pre">'+t('pre')+'</option><option value="post">'+t('post')+'</option>';$('tipBase').value=tv;
   const sv=$('st').value;
@@ -363,7 +390,7 @@ function render(){
   const so=Object.keys(NM).map(k=>'<option value="'+k+'">'+NM[k][L]+'</option>').join('');
   const keep=(id,def,extra)=>{const v=$(id).value||def;$(id).innerHTML=(extra||'')+so;$(id).value=v};
   keep('fxF','USD');keep('fxT','TWD');keep('fxH','none','<option value="none">'+t('fxNone')+'</option>');
-  dealUI();calcTip();calcShop();calcFx();showFx();
+  modeUI();dealUI();calcTip();calcShop();calcFx();showFx();
 }
 function setCur(k){
   K=k;cur=CUR[k];
@@ -374,6 +401,7 @@ function setCur(k){
   $('deal').value='none';
   render();
 }
+$('mode').onchange=()=>{modeUI();calcTip()};
 $('cur').onchange=()=>setCur($('cur').value);
 $('lang').onchange=()=>{L=+$('lang').value;render()};
 $('deal').onchange=()=>{$('x').value='';$('y').value='';dealUI();calcShop()};
